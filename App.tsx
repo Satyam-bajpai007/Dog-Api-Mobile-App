@@ -5,91 +5,51 @@
  * @format
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [dogImages, setDogImages] = useState<string[]>([]);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const fetchDogImages = async () => {
+    try {
+      const response = await fetch('https://dog.ceo/api/breeds/image/random/3');
+      const data = await response.json();
+      setDogImages(data.message);
+    } catch (error) {
+      console.error('Error fetching dog images:', error);
+    }
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
+    <SafeAreaView style={styles.backgroundStyle}>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+        style={styles.backgroundStyle}>
+        <View>
+          <TouchableOpacity onPress={fetchDogImages}>
+            <Text style={styles.sectionTitle}>Click Here</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.imageContainer}>
+          {dogImages.map((image, index) => (
+            <Image key={index} source={{uri: image}} style={styles.dogImage} />
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -97,21 +57,31 @@ function App(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  backgroundStyle: {
+    backgroundColor: Colors.black,
+    width: '100%',
+    height: '100%',
+  },
+  imageContainer: {
+    flexDirection: 'column',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dogImage: {
+    width: 200,
+    height: 200,
+    margin: 10,
+    borderRadius: 10,
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+    color: Colors.white,
+    textAlign: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#1E90FF',
   },
 });
 
